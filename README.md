@@ -15,7 +15,7 @@ the following API endpoints:
 
 Your solution must support running the URL shortener service with multiple workers.
 
-For example, it should be possible  to start two instances of the service, make a request for to shorten a URL
+For example, it should be possible  to start two instances of the service, make a request to shorten a URL
 to one instance, and be able to resolve that shortened URL by sending subsequent request to the second instance. 
 
 ## Getting Started

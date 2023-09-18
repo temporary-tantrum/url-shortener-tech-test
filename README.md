@@ -63,7 +63,8 @@ When you have completed the project, please follow these guidelines for submissi
 
 ## Additional Information
 Feel free to be creative in how you approach this project. Your solution will be evaluated based on code quality,
-efficiency, and how well it meets the specified requirements.
+efficiency, and how well it meets the specified requirements. Be prepared to discuss the reasoning behind your
+implementation decisions and their trade-offs.
 
 Good luck, and we look forward to seeing your URL Shortener project! If you have any questions or need
 clarifications, please reach out to us.

@@ -9,8 +9,8 @@ Using the provided Python project template, your task is to implement a URL Shor
 the following API endpoints:
 
 * POST `/url/shorten`: accepts a URL to shorten (e.g. https://www.google.com) and returns a short URL that 
-  can be resolved at a later time (e.g. http://localhost:8000/abc)
-* GET `r/<short_url>`: resolve the given short URL (e.g. http://localhost:8000/abc) to its original URL
+  can be resolved at a later time (e.g. http://localhost:8000/r/abc)
+* GET `r/<short_url>`: resolve the given short URL (e.g. http://localhost:8000/r/abc) to its original URL
   (e.g. https://www.google.com). If the short URL is unknown, an HTTP 404 response is returned.
 
 Your solution must support running the URL shortener service with multiple workers.

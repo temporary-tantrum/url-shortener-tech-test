@@ -1,3 +1,6 @@
+"""
+    TODO: doc
+"""
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -7,6 +10,9 @@ BASE_URL: str = "http://locahost:8000"
 
 
 class ShortenRequest(BaseModel):
+    """
+    deef dorf
+    """
     url: str
 
 
@@ -21,6 +27,9 @@ async def url_shorten(request: ShortenRequest):
 
 
 class ResolveRequest(BaseModel):
+    """
+    beef borf
+    """
     short_url: str
 
 
@@ -35,4 +44,7 @@ async def url_resolve(short_url: str):
 
 @app.get("/")
 async def index():
+    """
+    let's get this party started
+    """
     return "Your URL Shortener is running!"

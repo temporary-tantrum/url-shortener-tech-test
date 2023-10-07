@@ -8,7 +8,7 @@ This project will serve as the primary jumping off point for our technical inter
 Using the provided Python project template, your task is to implement a URL Shortener web service that exposes
 the following API endpoints:
 
-* POST `/url/shorten`: accepts a URL to shorten (e.g. https://www.google.com) and returns a short URL that 
+* POST `/url/shorten`: accepts a URL to shorten (e.g. https://www.google.com) and returns a short URL that
   can be resolved at a later time (e.g. http://localhost:8000/r/abc)
 * GET `r/<short_url>`: resolve the given short URL (e.g. http://localhost:8000/r/abc) to its original URL
   (e.g. https://www.google.com). If the short URL is unknown, an HTTP 404 response is returned.
@@ -16,7 +16,7 @@ the following API endpoints:
 Your solution must support running the URL shortener service with multiple workers.
 
 For example, it should be possible  to start two instances of the service, make a request to shorten a URL
-to one instance, and be able to resolve that shortened URL by sending subsequent request to the second instance. 
+to one instance, and be able to resolve that shortened URL by sending subsequent request to the second instance.
 
 ## Getting Started
 

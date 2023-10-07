@@ -11,4 +11,4 @@ lint:
 	pylint `git ls-files '*.py'`
 
 test:
-	pytest `git ls-files '*.py'`
+	pytest `git ls-files '*tests.py'`

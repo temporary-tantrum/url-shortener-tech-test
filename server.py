@@ -46,7 +46,7 @@ async def teardown():
     """
     Tear down the application.
     """
-    await application_services['redis_pool'].close()
+    await application_services['redis_pool'].aclose()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):

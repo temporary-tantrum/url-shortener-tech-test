@@ -5,6 +5,7 @@ The ShorteningService class is responsible for shortening and longening URLs.
 from typing import Callable
 from redis import asyncio as redis
 import silly
+from fastapi import HTTPException
 
 ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 MAX_TOKEN_RETRIES = 20
@@ -30,11 +31,11 @@ class ShorteningService:
             decode_responses=True)
 
     @staticmethod
-    def redis_key(id: str) -> str:
+    def redis_key(short_id: str) -> str:
         """
-        Return the Redis key for a given ID.
+        Return the Redis key for a given short id.
         """
-        return f"url:{id}"
+        return f"url:{short_id}"
 
     async def find_and_set_valid_id(self, url, name_function: Callable) -> str:
         """
@@ -52,20 +53,22 @@ class ShorteningService:
                 ex=ONE_YEAR_IN_SECONDS)
             if response:
                 return generated_id
-        raise Exception("Unable to find a valid ID!")
+        raise HTTPException(status_code=500, detail="Unable to find a valid ID!")
 
     async def shorten(self, url: str) -> str:
         """
         Shorten a URL.
         """
-        short_token_generator = lambda: silly.name(slugify=True)
+        def short_token_generator() -> str:
+            silly.name(slugify=True)
         return await self.find_and_set_valid_id(url, short_token_generator)
 
     async def longen(self, url: str) -> str:
         """
         Longen a URL.
         """
-        long_token_generator = lambda: silly.sentence(slugify=True)
+        def long_token_generator() -> str:
+            silly.sentence(slugify=True)
         return await self.find_and_set_valid_id(url, long_token_generator)
 
     async def resolve(self, short_id: str) -> str:

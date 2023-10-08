@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from redis import asyncio as redis
-from ShorteningService import ShorteningService
+from shortening_service import ShorteningService
 
 # setup, here, with environment variables (with simple, sane defaults)
 PORT: int = int(os.getenv("PORT") or 8000)

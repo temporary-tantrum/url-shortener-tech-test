@@ -35,15 +35,11 @@ The API endpoints can be found in `server.py`.
 
 ### Running the service in fully-dockerized mode
 
-Running the service requires Make and Docker Compose. If you have the Docker app it also installs Docker Compose for you.
+Running the service requires [make](https://www.google.com/search?q=how+to+install+make) and Docker Compose.
+(If you have the Docker Desktop app it also installs Docker Compose for you.)
 
 There are two options for running the service: it can either be run entirely in containerized fashion, using:
 
-```commandline
-make run
-```
-
-To run the web service in interactive mode, use the following command:
 ```commandline
 make run
 ```
@@ -54,7 +50,7 @@ make run
 This command will pull and activate a Redis image, build a new Docker image (`pw/url-shortener:latest`),
 and start a container instance in interactive mode.
 
-By default, the web service will run on port 8000.
+By default, the web service will run on port 8000, although this is configurable with the `PORT` environment variable.
 
 ### Running the service locally
 

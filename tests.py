@@ -39,7 +39,7 @@ def test_redirect():
     """
         Test that the response from the redirect endpoint is, in fact, a redirect.
     """
-    r = requests.get('http://localhost:8000/r/abc123', timeout=1,
+    r = requests.get('http://localhost:8000/r/tootsAhoy', timeout=1,
                         allow_redirects=False)
     assert r.status_code == 307
     # test that the location header is set
@@ -62,3 +62,21 @@ def test_that_the_redirect_logic_works_the_way_we_expect_it_to():
     r = requests.get(short_url, timeout=1, allow_redirects=False)
     assert r.status_code == 307
     assert r.headers['Location'] == url_to_shorten
+
+def test_that_the_redirect_logic_works_for_longen_too():
+    """
+        When we give the redirect endpoint a shorten command,
+            it should return a code that we can use to
+            redirect to the original URL.
+    """
+    url_to_longen = "https://wwwww.gooble.email"
+
+    r = requests.post('http://localhost:8000/url/longen',
+        data=json.dumps({'url': url_to_longen}), timeout=1)
+
+    long_url = r.json()['long_url']
+    assert long_url is not None
+
+    r = requests.get(long_url, timeout=1, allow_redirects=False)
+    assert r.status_code == 307
+    assert r.headers['Location'] == url_to_longen

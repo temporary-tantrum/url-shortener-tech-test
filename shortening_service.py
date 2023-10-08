@@ -60,7 +60,7 @@ class ShorteningService:
         Shorten a URL.
         """
         def short_token_generator() -> str:
-            silly.name(slugify=True)
+            return silly.name(slugify=True)
         return await self.find_and_set_valid_id(url, short_token_generator)
 
     async def longen(self, url: str) -> str:
@@ -68,7 +68,7 @@ class ShorteningService:
         Longen a URL.
         """
         def long_token_generator() -> str:
-            silly.sentence(slugify=True)
+            return silly.sentence(slugify=True)
         return await self.find_and_set_valid_id(url, long_token_generator)
 
     async def resolve(self, short_id: str) -> str:

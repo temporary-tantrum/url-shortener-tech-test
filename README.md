@@ -1,4 +1,4 @@
-# URL Shortener Take-Home Project
+# URL Shortener/Longener Take-Home Project
 Welcome to Curtis's solution to the Pocket Worlds URL Shortener Take-Home Project!
 In this repository, we'd like you to evaluate our demonstration of our
 engineering skills by reviewing a small Python project that implements a URL Shortener web service.
@@ -6,7 +6,7 @@ engineering skills by reviewing a small Python project that implements a URL Sho
 This project will serve as the primary jumping off point for our technical interviews.
 
 ## Project Description
-The URL Shortener web service exposes the following API endpoints:
+The URL Shortener/Longener web service exposes the following API endpoints:
 
 * POST `/url/shorten`: accepts a URL to shorten (e.g. https://wwwww.gooble.email) and returns a short URL that
   can be resolved at a later time (e.g. http://localhost:8000/r/abc)
@@ -28,7 +28,7 @@ To begin evaluating the project, clone this repository to your local machine:
 git clone https://github.com/pocketzworld/url-shortener-tech-test.git
 ```
 
-This repository contains the URL Shortener web service written in Python 3.11
+This repository contains the URL Shortener/Longener web service written in Python 3.11
 using the [FastAPI](https://fastapi.tiangolo.com/) framework.
 
 The API endpoints can be found in `server.py`.

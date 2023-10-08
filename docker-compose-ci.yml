@@ -1,0 +1,13 @@
+services:
+  redis:
+    image: docker.io/redis:7
+    environment:
+      - REDIS_AOF_ENABLED=false
+  app:
+    depends_on:
+      - redis
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379

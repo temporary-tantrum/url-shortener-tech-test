@@ -1,11 +1,17 @@
-build:
-	docker build -t pw/url-shortener:latest .
+run: clean
+	docker compose -f ./docker-compose-ci.yml build
+	docker compose -f ./docker-compose-ci.yml up -d
 
-run: build
-	docker run -it --rm -p 8000:8000/tcp --name url-shortener pw/url-shortener:latest
+clean:
+	docker compose -f ./docker-compose-ci.yml down
+	docker compose -f ./docker-compose-local.yml down
 
-local:
-	uvicorn server:app --reload --no-use-colors
+local: clean
+	docker compose -f ./docker-compose-local up -d
+	uvicorn server:app --no-use-colors
+
+install:
+	pip install -r requirements-local.txt
 
 lint:
 	pylint `git ls-files '*.py'`

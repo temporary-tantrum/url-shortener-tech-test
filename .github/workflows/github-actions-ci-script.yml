@@ -1,0 +1,19 @@
+name: Build and Test
+run-name: ${{ github.actor }} - ${{ github.event.head_commit.message }}
+on: [push]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install local dependencies
+        run: |
+          make install
+      - name: Lint
+        run: |
+          make lint
+```

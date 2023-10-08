@@ -3,30 +3,20 @@
 """
 import os
 from contextlib import asynccontextmanager
-import asyncio
-from urllib.parse import urlparse
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from redis import asyncio as redis
+from ShorteningService import ShorteningService
 
-import silly
-
+# setup, here, with environment variables (with simple, sane defaults)
 PORT: int = int(os.getenv("PORT") or 8000)
 BASE_URL: str = os.getenv("BASE_URL") or f"http://localhost:{PORT}"
 REDIS_URL: str = os.getenv("REDIS_URL") or "redis://localhost:6379"
 
-# parse redis url into a host and port and password (if applicable)
-redis_url = urlparse(REDIS_URL)
-redis_host = redis_url.hostname
-redis_port = redis_url.port
-redis_password = redis_url.password
-
-redis_pool = None
+# behold: a global variable
+#  (scare chord plays)
 application_services = {}
-
-## this is maybe necessary on windows
-## asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def test_redis_connection(redis_pool: redis.ConnectionPool):
     """
@@ -40,33 +30,51 @@ async def test_redis_connection(redis_pool: redis.ConnectionPool):
     test = await redis_client.get("test")
     assert test == "test"
 
+async def setup():
+    """
+    Set up the application.
+    """
+    redis_pool = redis.ConnectionPool.from_url(REDIS_URL, decode_responses=True)
+
+    await test_redis_connection(redis_pool)
+    application_services['redis_pool'] = redis_pool
+
+    shortening_service = ShorteningService(redis_pool, default_target=BASE_URL)
+    application_services['shortening_service'] = shortening_service
+
+async def teardown():
+    """
+    Tear down the application.
+    """
+    await application_services['redis_pool'].close()
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    pool = redis.ConnectionPool.from_url(REDIS_URL, decode_responses=True)
-
-    await test_redis_connection(pool)
-    application_services['redis_pool'] = pool
+    """
+    Lifespan events are a FastAPI feature that allow us to run code before
+        the application starts and after it stops.
+    Check https://fastapi.tiangolo.com/advanced/events/ for more info.
+    (we abstract this into "setup" and "teardown" for clarity)
+    """
+    await setup()
     yield
-    # giant habbo raid july 12th at 10:00pm
-    await pool.close()
+    await teardown()
 
 app = FastAPI(lifespan=lifespan)
 
-def redis_key(id: str) -> str:
-    """
-    Return the Redis key for a given ID.
-    """
-    return f"url:{id}"
-
 class ShortenRequest(BaseModel):
     """
-    deef dorf
+    Request to shorten a URL.
     """
     url: str
 
 class ShortenResponse(BaseModel):
     """
-    beef borf
+    Look, calling it a "short url" is kind of a misnomer:
+        it's just a short token - it's not the URL unless
+        the base URL is prepended to it.
+    Leaving the name as-is because I don't want to change
+        the contract implied by the challenge's original API.
     """
     short_url: str
 
@@ -76,11 +84,8 @@ async def url_shorten(request: ShortenRequest):
     Given a URL, generate a short version of the URL that can be
     later resolved to the originally specified URL.
     """
-    short_id = silly.name(slugify=True)
-    redis_client = redis.Redis(connection_pool=redis_pool)
-    print("shoretning::::")
-    print(request.url)
-    await redis_client.set(redis_key(short_id), request.url)
+    shortening_service = application_services["shortening_service"]
+    short_id = await shortening_service.shorten(request.url)
     return {
         "short_url": f"{BASE_URL}/r/{short_id}",
         "short_id": short_id
@@ -92,9 +97,8 @@ async def url_longen(request: ShortenRequest):
     Given a URL, generate a long version of the URL that can be
     later resolved to the originally specified URL.
     """
-    long_id = silly.sentence(slugify=True)
-    redis_client = redis.Redis(connection_pool=redis_pool)
-    await redis_client.set(redis_key(long_id), request.url)
+    shortening_service = application_services["shortening_service"]
+    long_id = await shortening_service.longen(request.url)
 
     return {
         "long_url": f"{BASE_URL}/r/{long_id}",
@@ -107,14 +111,8 @@ async def url_resolve(short_url: str):
     Return a redirect response for a valid shortened URL string.
     If the short URL is unknown, return an HTTP 404 response.
     """
-    # the default response is just a redirect to the base URL
-    redis_client = redis.Redis(connection_pool=redis_pool,
-                                decode_responses=True)
-    redirect_target = await redis_client.get(redis_key(short_url))
-    print("redorircotong: :: >")
-    print(redirect_target)
-    if not redirect_target:
-        return RedirectResponse(BASE_URL)
+    shortening_service = application_services["shortening_service"]
+    redirect_target = await shortening_service.resolve(short_id=short_url)
     return RedirectResponse(redirect_target)
 
 

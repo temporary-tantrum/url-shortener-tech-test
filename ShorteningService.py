@@ -1,0 +1,79 @@
+"""
+The ShorteningService class is responsible for shortening and longening URLs.
+"""
+
+from typing import Callable
+from redis import asyncio as redis
+import silly
+
+ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
+MAX_TOKEN_RETRIES = 20
+
+class ShorteningService:
+    """
+    Mama's little baby loves shortenin', shortenin'
+    """
+
+    def __init__(self, redis_pool: redis.ConnectionPool, default_target: str):
+        self.redis_pool = redis_pool
+        self.default_target = default_target
+
+    def client(self) -> redis.Redis:
+        """
+        Return a Redis client.
+
+        (hey, if we were building this into a bigger application,
+            this function wouldn't live here)
+        """
+        return redis.Redis(
+            connection_pool=self.redis_pool,
+            decode_responses=True)
+
+    @staticmethod
+    def redis_key(id: str) -> str:
+        """
+        Return the Redis key for a given ID.
+        """
+        return f"url:{id}"
+
+    async def find_and_set_valid_id(self, url, name_function: Callable) -> str:
+        """
+        Despite the large inherent keyspace of silly, it's possible that
+            we'll generate a duplicate ID. This function will keep
+            generating IDs until it finds one that doesn't exist in Redis.
+        """
+        counter = 0
+        while counter < MAX_TOKEN_RETRIES:
+            generated_id = name_function()
+            response = await self.client().set(
+                ShorteningService.redis_key(generated_id),
+                url,
+                nx=True,
+                ex=ONE_YEAR_IN_SECONDS)
+            if response:
+                return generated_id
+        raise Exception("Unable to find a valid ID!")
+
+    async def shorten(self, url: str) -> str:
+        """
+        Shorten a URL.
+        """
+        short_token_generator = lambda: silly.name(slugify=True)
+        return await self.find_and_set_valid_id(url, short_token_generator)
+
+    async def longen(self, url: str) -> str:
+        """
+        Longen a URL.
+        """
+        long_token_generator = lambda: silly.sentence(slugify=True)
+        return await self.find_and_set_valid_id(url, long_token_generator)
+
+    async def resolve(self, short_id: str) -> str:
+        """
+        Resolve a short URL to its original URL.
+        """
+        key = ShorteningService.redis_key(short_id)
+        redirect_target = await self.client().get(key)
+        if not redirect_target:
+            return self.default_target
+        return redirect_target

@@ -57,6 +57,8 @@ class ShorteningService:
                 ex=ONE_YEAR_IN_SECONDS)
             if response:
                 return generated_id
+            else:
+                counter += 1
         raise HTTPException(status_code=500, detail="Unable to find a valid ID!")
 
     async def shorten(self, url: str) -> str:

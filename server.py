@@ -1,13 +1,21 @@
 """
-    TODO: doc
+    This is the main entrypoint for the URL shortening service.
+
+    For more information, consult the README.md file, or your nearest librarian.
 """
 import os
+from typing import Annotated
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from redis import asyncio as redis
 from shortening_service import ShorteningService
+
+# this is a surprise tool that will help us later
+URL_REGEX = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}" + \
+    "\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+
 
 # setup, here, with environment variables (with simple, sane defaults)
 PORT: int = int(os.getenv("PORT") or 8000)
@@ -66,7 +74,7 @@ class ShortenRequest(BaseModel):
     """
     Request to shorten a URL.
     """
-    url: str
+    url: Annotated[str, Query(max_length=1000, regex=URL_REGEX)]
 
 class ShortenResponse(BaseModel):
     """
@@ -92,11 +100,6 @@ async def url_shorten(request: ShortenRequest) -> ShortenResponse:
     """
     Given a URL, generate a short version of the URL that can be
     later resolved to the originally specified URL.
-
-    TODO: hey, I'm running out of time budget on this, but the URL argument
-        here should be validated to ensure that it's a real URL.
-        I'm not too familiar with Pydantic but I assume there's a type
-        in there for that.
     """
     shortening_service = application_services["shortening_service"]
     short_id = await shortening_service.shorten(request.url)
@@ -110,9 +113,6 @@ async def url_longen(request: ShortenRequest) -> LongenResponse:
     """
     Given a URL, generate a long version of the URL that can be
     later resolved to the originally specified URL.
-
-    TODO: hey, I'm running out of time budget on this, but the URL argument
-        here should be validated to ensure that it's a real URL, too.
     """
     shortening_service = application_services["shortening_service"]
     long_id = await shortening_service.longen(request.url)

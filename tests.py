@@ -23,6 +23,30 @@ def test_post():
     print(r.text)
     assert r.status_code == 200
 
+def test_wtf():
+    """
+        That is not a URL, you can't convince me otherwise.
+    """
+    url_to_shorten = "www.https://www.https&google.com"
+
+    r = requests.post('http://localhost:8000/url/shorten',
+        data=json.dumps({'url': url_to_shorten}), timeout=1)
+
+    print(r.text)
+    assert r.status_code == 422
+
+def test_too_long_url():
+    """
+        That is not a URL, you can't convince me otherwise.
+    """
+    url_to_shorten = "https://www.google.com" + "a" * 10000
+
+    r = requests.post('http://localhost:8000/url/shorten',
+        data=json.dumps({'url': url_to_shorten}), timeout=1)
+
+    print(r.text)
+    assert r.status_code == 422
+
 def test_longen_post():
     """
         Test that longening a URL returns a 200 response.

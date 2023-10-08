@@ -11,3 +11,7 @@ services:
       - "127.0.0.1:8000:8000"
     environment:
       - REDIS_URL=redis://redis:6379
+  hello:
+    depends_on:
+      - app
+    image: docker.io/library/alpine:3.14

@@ -7,7 +7,7 @@ clean:
 	docker compose -f ./docker-compose-local.yml down
 
 local: clean
-	docker compose -f ./docker-compose-local up -d
+	docker compose -f ./docker-compose-local.yml up -d
 	uvicorn server:app --no-use-colors
 
 install:

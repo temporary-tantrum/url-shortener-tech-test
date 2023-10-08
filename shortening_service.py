@@ -49,6 +49,7 @@ class ShorteningService:
         """
         counter = 0
         while counter < MAX_TOKEN_RETRIES:
+            counter += 1
             generated_id = name_function()
             response = await self.client().set(
                 ShorteningService.redis_key(generated_id),
@@ -57,8 +58,6 @@ class ShorteningService:
                 ex=ONE_YEAR_IN_SECONDS)
             if response:
                 return generated_id
-            else:
-                counter += 1
         raise HTTPException(status_code=500, detail="Unable to find a valid ID!")
 
     async def shorten(self, url: str) -> str:

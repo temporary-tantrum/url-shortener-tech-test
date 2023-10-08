@@ -13,9 +13,12 @@ jobs:
       - name: Install local dependencies
         run: |
           make install
+      - name: Build
+        run: |
+          make run
       - name: Lint
         run: |
           make lint
-      - name: Build & Test
+      - name: Test
         run: |
-          make ci_test
+          make test

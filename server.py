@@ -77,12 +77,26 @@ class ShortenResponse(BaseModel):
         the contract implied by the challenge's original API.
     """
     short_url: str
+    short_id: str
+
+class LongenResponse(BaseModel):
+    """
+    The LongenResponse is different from the ShortenResponse,
+        because the longen endpoint returns a long url, not a short one.
+    """
+    long_url: str
+    long_id: str
 
 @app.post("/url/shorten")
-async def url_shorten(request: ShortenRequest):
+async def url_shorten(request: ShortenRequest) -> ShortenResponse:
     """
     Given a URL, generate a short version of the URL that can be
     later resolved to the originally specified URL.
+
+    TODO: hey, I'm running out of time budget on this, but the URL argument
+        here should be validated to ensure that it's a real URL.
+        I'm not too familiar with Pydantic but I assume there's a type
+        in there for that.
     """
     shortening_service = application_services["shortening_service"]
     short_id = await shortening_service.shorten(request.url)
@@ -92,10 +106,13 @@ async def url_shorten(request: ShortenRequest):
     }
 
 @app.post("/url/longen")
-async def url_longen(request: ShortenRequest):
+async def url_longen(request: ShortenRequest) -> LongenResponse:
     """
     Given a URL, generate a long version of the URL that can be
     later resolved to the originally specified URL.
+
+    TODO: hey, I'm running out of time budget on this, but the URL argument
+        here should be validated to ensure that it's a real URL, too.
     """
     shortening_service = application_services["shortening_service"]
     long_id = await shortening_service.longen(request.url)
@@ -106,7 +123,7 @@ async def url_longen(request: ShortenRequest):
     }
 
 @app.get("/r/{short_url}")
-async def url_resolve(short_url: str):
+async def url_resolve(short_url: str) -> RedirectResponse:
     """
     Return a redirect response for a valid shortened URL string.
     If the short URL is unknown, return an HTTP 404 response.

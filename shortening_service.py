@@ -36,6 +36,9 @@ class ShorteningService:
     def redis_key(short_id: str) -> str:
         """
         Return the Redis key for a given short id.
+        (in an application that uses any _other_ redis keys, users
+            could generate intentional collisions to probe around
+            in the Redis database, which a prefix prevents)
         """
         return f"url:{short_id}"
 

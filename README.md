@@ -1,72 +1,114 @@
 # URL Shortener Take-Home Project
-Welcome to the Pocket Worlds URL Shortener Take-Home Project! In this repository, we'd like you to demonstrate your
-engineering skills by creating a small Python project that implements a URL Shortener web service.
+Welcome to Curtis's solution to the Pocket Worlds URL Shortener Take-Home Project!
+In this repository, we'd like you to evaluate our demonstration of our
+engineering skills by reviewing a small Python project that implements a URL Shortener web service.
 
 This project will serve as the primary jumping off point for our technical interviews.
 
 ## Project Description
-Using the provided Python project template, your task is to implement a URL Shortener web service that exposes
-the following API endpoints:
+The URL Shortener web service exposes the following API endpoints:
 
 * POST `/url/shorten`: accepts a URL to shorten (e.g. https://www.google.com) and returns a short URL that
   can be resolved at a later time (e.g. http://localhost:8000/r/abc)
 * GET `r/<short_url>`: resolve the given short URL (e.g. http://localhost:8000/r/abc) to its original URL
   (e.g. https://www.google.com). If the short URL is unknown, an HTTP 404 response is returned.
 
-Your solution must support running the URL shortener service with multiple workers.
+The solution supports running the URL shortener service with multiple workers.
 
-For example, it should be possible  to start two instances of the service, make a request to shorten a URL
+For example, it is possible to start two instances of the service, make a request to shorten a URL
 to one instance, and be able to resolve that shortened URL by sending subsequent request to the second instance.
 
 ## Getting Started
 
-To begin the project, clone this repository to your local machine:
+To begin evaluating the project, clone this repository to your local machine:
 
 ```commandline
 git clone https://github.com/pocketzworld/url-shortener-tech-test.git
 ```
 
-This repository contains a skeleton of the URL Shortener web service written in Python 3.11
+This repository contains the URL Shortener web service written in Python 3.11
 using the [FastAPI](https://fastapi.tiangolo.com/) framework.
 
 The API endpoints can be found in `server.py`.
 
-A Makefile and Dockerfile are also included for your convenience to run and test the web service.
+### Running the service in fully-dockerized mode
 
-You are not required to use Docker for your implementation, so feel free to modify this project and README
-to reflect how your implementation should be run and tested.
+Running the service requires Make and Docker Compose. If you have the Docker app it also installs Docker Compose for you.
 
-### Running the service
+There are two options for running the service: it can either be run entirely in containerized fashion, using:
+
+```commandline
+make run
+```
 
 To run the web service in interactive mode, use the following command:
 ```commandline
 make run
 ```
 
-This command will build a new Docker image (`pw/url-shortener:latest`) and start a container
-instance in interactive mode.
+(Note, this uses the modern `docker compose` syntax: some very old installations of docker require `docker-compose`,
+ and I'm going to imagine very hard that you do not have a Docker that old installed on your computer)
+
+This command will pull and activate a Redis image, build a new Docker image (`pw/url-shortener:latest`),
+and start a container instance in interactive mode.
 
 By default, the web service will run on port 8000.
 
+### Running the service locally
+
+This offers, (in my opinion), slightly better integration with local development tools, but it's not required.
+
+First, set up a virtualenv. The virtualenv is a little self-contained python environment that allows you to install
+the project's local pip requirements without mixing them with all of the rest of the python packages on your system.
+
+```commandline
+python -m venv .
+source Scripts/activate
+```
+
+(note: the process for setting up a venv is variable from system to system, so if that doesn't work: it's okay)
+
+Now install all of the local pip requirements:
+
+```commandline
+make install
+```
+
+Finally, use the `local` command to run the application locally.
+```commandline
+make local
+```
+
+### Wait, Redis? Aren't the URL links supposed to be permanent?
+Honestly, I think having short URLs disappear after a year is probably better.
+
+This isn't established in the docker file (because this is local-dev-only) but for a production version
+of this, the Redis would be configured with backups and _no eviction policy_.
+
+### Linting
+Look, do I want to argue with people about code style? No, that is silly. Just do what the linter says.
+
+```commandline
+make lint
+```
+
 ### Testing
+
+_if_ the server is running:
+```commandline
+make test
+```
+
+This will run a quick suite of HTTP tests to verify that the endpoints run as intended.
 
 Swagger UI is available as part of the FastAPI framework that can be used to inspect and test
 the API endpoints of the URL shortener. To access it, start run the web service and go to http://localhost:8000/docs
 
-## Submission Guidelines
-When you have completed the project, please follow these guidelines for submission:
+### Automation
 
-1. Commit and push your code to your GitHub repository.
-2. Update this README with any additional instructions, notes, or explanations regarding your implementation, if necessary.
-3. Provide clear instructions on how to run and test your project.
-4. Share the repository URL with the hiring team or interviewer.
+The lint and test steps are executed automatically upon commit of the project: see `.github/workflows/github-actions-ci-script.yml`
+for more details.
 
-## Additional Information
-Feel free to be creative in how you approach this project. Your solution will be evaluated based on code quality,
-efficiency, and how well it meets the specified requirements. Be prepared to discuss the reasoning behind your
-implementation decisions and their trade-offs.
+Runs live here: https://github.com/temporary-tantrum/url-shortener-tech-test/actions
 
-Good luck, and we look forward to seeing your URL Shortener project! If you have any questions or need
-clarifications, please reach out to us.
-
-## Beef Dorf
+So long as it's green, we're good `>_>`

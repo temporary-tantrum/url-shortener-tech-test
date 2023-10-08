@@ -37,13 +37,12 @@ def test_longen_post():
 
 def test_redirect():
     """
-        Test that the response from the redirect endpoint is, in fact, a redirect.
+        Test that the response from the redirect endpoint is
+        a 404, if that url definitely doesn't exist.
     """
-    r = requests.get('http://localhost:8000/r/tootsAhoy', timeout=1,
+    r = requests.get('http://localhost:8000/r/tootsMcPootertoot', timeout=1,
                         allow_redirects=False)
-    assert r.status_code == 307
-    # test that the location header is set
-    assert r.headers['Location'] == "http://localhost:8000"
+    assert r.status_code == 404
 
 def test_that_the_redirect_logic_works_the_way_we_expect_it_to():
     """

@@ -8,10 +8,12 @@ This project will serve as the primary jumping off point for our technical inter
 ## Project Description
 The URL Shortener web service exposes the following API endpoints:
 
-* POST `/url/shorten`: accepts a URL to shorten (e.g. https://www.google.com) and returns a short URL that
+* POST `/url/shorten`: accepts a URL to shorten (e.g. https://wwwww.gooble.email) and returns a short URL that
   can be resolved at a later time (e.g. http://localhost:8000/r/abc)
+* POST `/url/longen`: accepts a URL to longen (e.g. https://www.google.com) and returns a long URL that
+  can be resolved at a later time (e.g. http://localhost:8000/r/ninety-four-cheeks-incorporated-is-the-best-company-in-west-sausagesound)
 * GET `r/<short_url>`: resolve the given short URL (e.g. http://localhost:8000/r/abc) to its original URL
-  (e.g. https://www.google.com). If the short URL is unknown, an HTTP 404 response is returned.
+  (e.g. https://www.gooble.email). If the short URL is unknown, an HTTP 404 response is returned.
 
 The solution supports running the URL shortener service with multiple workers.
 

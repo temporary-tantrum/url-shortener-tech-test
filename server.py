@@ -39,7 +39,7 @@ async def setup():
     await test_redis_connection(redis_pool)
     application_services['redis_pool'] = redis_pool
 
-    shortening_service = ShorteningService(redis_pool, default_target=BASE_URL)
+    shortening_service = ShorteningService(redis_pool)
     application_services['shortening_service'] = shortening_service
 
 async def teardown():
@@ -125,7 +125,7 @@ async def url_longen(request: ShortenRequest) -> LongenResponse:
 @app.get("/r/{short_url}")
 async def url_resolve(short_url: str) -> RedirectResponse:
     """
-    Return a redirect response for a valid shortened URL string.
+    Return a redirect response for a valid shortened (or longened) URL string.
     If the short URL is unknown, return an HTTP 404 response.
     """
     shortening_service = application_services["shortening_service"]

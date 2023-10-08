@@ -17,9 +17,8 @@ class ShorteningService:
     Mama's little baby loves shortenin', shortenin'
     """
 
-    def __init__(self, redis_pool: redis.ConnectionPool, default_target: str):
+    def __init__(self, redis_pool: redis.ConnectionPool):
         self.redis_pool = redis_pool
-        self.default_target = default_target
 
     def client(self) -> redis.Redis:
         """
@@ -90,5 +89,5 @@ class ShorteningService:
         key = ShorteningService.redis_key(short_id)
         redirect_target = await self.client().get(key)
         if not redirect_target:
-            return self.default_target
+            raise HTTPException(status_code=404, detail="No such URL!")
         return redirect_target

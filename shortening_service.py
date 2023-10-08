@@ -2,6 +2,7 @@
 The ShorteningService class is responsible for shortening and longening URLs.
 """
 
+import secrets # safe with me
 from typing import Callable
 from redis import asyncio as redis
 import silly
@@ -9,6 +10,7 @@ from fastapi import HTTPException
 
 ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 MAX_TOKEN_RETRIES = 20
+KEY_LENGTH = 4
 
 class ShorteningService:
     """
@@ -60,7 +62,14 @@ class ShorteningService:
         Shorten a URL.
         """
         def short_token_generator() -> str:
-            return silly.name(slugify=True)
+            # if this is getting randomness from where I think it's
+            #   getting randomness, this call should be async, right?
+            #   dev/urandom is a blocking call, right?
+            #   i'm going to leave it as-is for now, tho:
+            #   I'm not going to rewrite the random number generator
+            #
+            #   yet
+            return secrets.token_urlsafe(KEY_LENGTH)
         return await self.find_and_set_valid_id(url, short_token_generator)
 
     async def longen(self, url: str) -> str:

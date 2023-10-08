@@ -65,7 +65,7 @@ def test_that_the_redirect_logic_works_the_way_we_expect_it_to():
 
 def test_that_the_redirect_logic_works_for_longen_too():
     """
-        When we give the redirect endpoint a shorten command,
+        When we give the redirect endpoint a longen command,
             it should return a code that we can use to
             redirect to the original URL.
     """

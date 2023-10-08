@@ -16,3 +16,6 @@ jobs:
       - name: Lint
         run: |
           make lint
+      - name: Build & Test
+        run: |
+          make ci_test

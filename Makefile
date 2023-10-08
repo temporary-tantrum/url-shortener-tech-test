@@ -18,3 +18,5 @@ lint:
 
 test:
 	pytest `git ls-files '*tests.py'`
+
+ci_test: run test clean

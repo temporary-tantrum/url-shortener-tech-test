@@ -16,9 +16,9 @@ from shortening_service import ShorteningService
 URL_REGEX = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}" + \
     "\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
 
-
 # setup, here, with environment variables (with simple, sane defaults)
 PORT: int = int(os.getenv("PORT") or 8000)
+# in prod this would be https://shortener.example.com
 BASE_URL: str = os.getenv("BASE_URL") or f"http://localhost:{PORT}"
 REDIS_URL: str = os.getenv("REDIS_URL") or "redis://localhost:6379"
 
@@ -34,9 +34,12 @@ async def test_redis_connection(redis_pool: redis.ConnectionPool):
     """
     redis_client = await redis.Redis(
         connection_pool=redis_pool)
+    # This should have a timeout
     await redis_client.set("test", "test")
     test = await redis_client.get("test")
     assert test == "test"
+
+# TODO: FastAPI has a "Dependency" feature that would probably be better here
 
 async def setup():
     """

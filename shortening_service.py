@@ -3,7 +3,7 @@ The ShorteningService class is responsible for shortening and longening URLs.
 """
 
 import secrets # safe with me
-from typing import Callable
+from typing import Callable, Optional
 from redis import asyncio as redis
 import silly
 from fastapi import HTTPException
@@ -35,11 +35,20 @@ class ShorteningService:
     def redis_key(short_id: str) -> str:
         """
         Return the Redis key for a given short id.
+            (this stores the url)
         (in an application that uses any _other_ redis keys, users
             could generate intentional collisions to probe around
             in the Redis database, which a prefix prevents)
         """
-        return f"url:{short_id}"
+        return f"id:{short_id}"
+
+    @staticmethod
+    def reverse_key(url: str) -> str:
+        """
+        Return the Redis key for a given url.
+            (this stores the short id)
+        """
+        return f"url:{url}"
 
     async def find_and_set_valid_id(self, url, name_function: Callable) -> str:
         """
@@ -51,19 +60,34 @@ class ShorteningService:
         while counter < MAX_TOKEN_RETRIES:
             counter += 1
             generated_id = name_function()
+            # these should have timeouts configured so that if redis responds slowly, we error out.
             response = await self.client().set(
                 ShorteningService.redis_key(generated_id),
                 url,
                 nx=True,
                 ex=ONE_YEAR_IN_SECONDS)
+            await self.client().set(
+                ShorteningService.reverse_key(url),
+                generated_id,
+                ex=ONE_YEAR_IN_SECONDS)
             if response:
                 return generated_id
         raise HTTPException(status_code=500, detail="Unable to find a valid ID!")
+
+    async def get_short_id_for_url(self, url: str) -> Optional[str]:
+        """
+        Check if a URL is already in the database.
+        """
+        return await self.client().get(ShorteningService.reverse_key(url))
 
     async def shorten(self, url: str) -> str:
         """
         Shorten a URL.
         """
+        existing_url = await self.get_short_id_for_url(url)
+        if existing_url:
+            return existing_url
+
         def short_token_generator() -> str:
             # if this is getting randomness from where I think it's
             #   getting randomness, this call should be async, right?
@@ -88,6 +112,7 @@ class ShorteningService:
         Resolve a short URL to its original URL.
         """
         key = ShorteningService.redis_key(short_id)
+        # these should have timeouts configured so that if redis responds slowly, we error out.
         redirect_target = await self.client().get(key)
         if not redirect_target:
             raise HTTPException(status_code=404, detail="No such URL!")

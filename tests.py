@@ -3,6 +3,7 @@
 """
 import json
 import requests
+import silly
 
 def test_index():
     """
@@ -103,3 +104,22 @@ def test_that_the_redirect_logic_works_for_longen_too():
     r = requests.get(long_url, timeout=1, allow_redirects=False)
     assert r.status_code == 307
     assert r.headers['Location'] == url_to_longen
+
+def test_that_the_same_url_gets_shortened_to_the_same_id_every_single_time():
+    """
+        When we give the redirect endpoint a shorten command,
+            we don't need a whole bunch of shorteners pointed to the same thing
+    """
+    url_to_shorten = f"https://wwwww.gooble.email/{silly.name(slugify=True)}"
+
+    r = requests.post('http://localhost:8000/url/shorten',
+        data=json.dumps({'url': url_to_shorten}), timeout=1)
+
+    short_url = r.json()['short_url']
+    assert short_url is not None
+
+    r = requests.post('http://localhost:8000/url/shorten',
+        data=json.dumps({'url': url_to_shorten}), timeout=1)
+
+    short_url_second_time = r.json()['short_url']
+    assert short_url == short_url_second_time
